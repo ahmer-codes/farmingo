@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    function userAccountActive(uid) {
+      return !exists(/databases/$(database)/documents/users/$(uid)) ||
+        get(/databases/$(database)/documents/users/$(uid)).data.get('status', 'active') != 'disabled';
+    }
+
+    function ownsConversation() {
+      return isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        userAccountActive(request.auth.uid);
+    }
+
+    function canReadConversation(conversationId) {
+      return isAdmin() ||
+        (isSignedIn() &&
+          userAccountActive(request.auth.uid) &&
+          get(/databases/$(database)/documents/supportConversations/$(conversationId)).data.userId == request.auth.uid);
+    }
+
+    // Support chat v2 — read-only from clients; writes go through Express Admin SDK.
+    match /supportConversations/{conversationId} {
+      allow read: if ownsConversation() || isAdmin();
+      allow write: if false;
+
+      match /messages/{messageId} {
+        allow read: if canReadConversation(conversationId);
+        allow write: if false;
+      }
+    }
+
+    // User profile reads for disabled-account enforcement in support chat rules.
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Admin audit metadata — no client access.
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+
+    match /adminAuditLogs/{logId} {
+      allow read, write: if false;
+    }
+
+    // All other Farmingo collections remain server-only via Express.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

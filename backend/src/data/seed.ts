@@ -1,0 +1,432 @@
+import { randomUUID } from "crypto";
+import {
+  DEFAULT_PREFERENCES,
+  type FarmRecord,
+  type FarmingType,
+  type LandUnit,
+} from "../models/user";
+import type { TaskRecord } from "../models/task";
+import { memoryStore } from "../repositories/memoryStore";
+import { hashPassword } from "../utils/password";
+import { taskService } from "../services/task.service";
+
+function toHectares(size: number, unit: LandUnit): number {
+  return unit === "acres" ? Number((size * 0.404686).toFixed(3)) : size;
+}
+
+export async function seedDevData(): Promise<void> {
+  if (memoryStore.seeded) return;
+
+  const now = new Date().toISOString();
+  const passwordHash = await hashPassword("farmingo123");
+  const today = taskService.todayIsoDate();
+
+  memoryStore.users.push({
+    id: "user-1",
+    email: "farmer@farmingo.local",
+    fullName: "Ayesha Khan",
+    phone: "+92 300 0000000",
+    passwordHash,
+    preferences: {
+      ...DEFAULT_PREFERENCES,
+      landUnit: "hectares",
+      temperatureUnit: "celsius",
+    },
+    createdAt: "2026-01-12T08:00:00.000Z",
+    updatedAt: now,
+  });
+
+  const farm: FarmRecord = {
+    id: "farm-1",
+    ownerId: "user-1",
+    name: "Green Valley Fields",
+    location: "Chak 42, Faisalabad",
+    region: "Punjab",
+    size: 12.5,
+    unit: "hectares",
+    farmingType: "crop" satisfies FarmingType,
+    primaryCrops: ["Wheat", "Cotton", "Corn"],
+    onboardingComplete: true,
+    createdAt: "2026-01-12T08:00:00.000Z",
+    updatedAt: now,
+  };
+
+  void toHectares;
+  memoryStore.farms.push(farm);
+
+  const seedTasks: TaskRecord[] = [
+    {
+      id: randomUUID(),
+      userId: "user-1",
+      title: "Apply protective fungicide",
+      description: "Protective foliar spray for wheat during grain filling.",
+      crop: "Wheat",
+      field: "North Block A",
+      priority: "high",
+      dueDate: taskService.addDays(today, -1),
+      dueTime: "07:00",
+      estimatedDurationMinutes: 60,
+      status: "pending",
+      source: "disease_treatment",
+      reason:
+        "Protective spray window was recommended after foliar disease watch.",
+      instructions:
+        "Spray early morning. Wear PPE. Avoid spraying in strong wind.",
+      relatedDisease: "Leaf Rust",
+      reminderTime: "06:30",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: randomUUID(),
+      userId: "user-1",
+      title: "Early irrigation pass",
+      description: "Irrigate maize before peak afternoon heat.",
+      crop: "Maize",
+      field: "South Ridge",
+      priority: "high",
+      dueDate: today,
+      dueTime: "06:30",
+      estimatedDurationMinutes: 40,
+      status: "in_progress",
+      source: "weather_precaution",
+      reason:
+        "High temperature forecast increases canopy stress risk on vegetative maize.",
+      instructions:
+        "Irrigate early. Check soil moisture at 10–15 cm depth first.",
+      reminderTime: "06:00",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: randomUUID(),
+      userId: "user-1",
+      title: "Check drip lines & emitters",
+      description: "Inspect cotton drip irrigation for clogged emitters.",
+      crop: "Cotton",
+      field: "East Canal Strip",
+      priority: "medium",
+      dueDate: today,
+      dueTime: "09:00",
+      estimatedDurationMinutes: 35,
+      status: "pending",
+      source: "farmer_created",
+      reason: "Manual field maintenance task.",
+      instructions: "Walk the main and sub-lines. Flush clogged emitters.",
+      reminderTime: "08:30",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: randomUUID(),
+      userId: "user-1",
+      title: "Scout for whitefly colonies",
+      description: "Inspect underside of cotton leaves for whitefly.",
+      crop: "Cotton",
+      field: "East Canal Strip",
+      priority: "high",
+      dueDate: taskService.addDays(today, 1),
+      dueTime: "07:30",
+      estimatedDurationMinutes: 45,
+      status: "pending",
+      source: "seasonal_recommendation",
+      reason: "Warm dry spell increases whitefly pressure during flowering.",
+      instructions:
+        "Sample at least 20 plants across the strip. Record counts.",
+      reminderTime: "07:00",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: randomUUID(),
+      userId: "user-1",
+      title: "Side-dress nitrogen",
+      description: "Apply side-dress nitrogen on maize South Ridge.",
+      crop: "Maize",
+      field: "South Ridge",
+      priority: "medium",
+      dueDate: taskService.addDays(today, 3),
+      dueTime: "08:00",
+      estimatedDurationMinutes: 50,
+      status: "pending",
+      source: "seasonal_recommendation",
+      instructions:
+        "Apply beside the row; irrigate lightly after application if soil is dry.",
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
+
+  memoryStore.tasks.push(...seedTasks);
+
+  const fieldDefs = [
+    {
+      id: "field-1",
+      name: "North Block A",
+      area: 3.2,
+      layoutRow: 0,
+      layoutCol: 0,
+      layoutSpan: 1,
+    },
+    {
+      id: "field-2",
+      name: "East Canal Strip",
+      area: 4.0,
+      layoutRow: 0,
+      layoutCol: 1,
+      layoutSpan: 1,
+    },
+    {
+      id: "field-3",
+      name: "South Ridge",
+      area: 2.8,
+      layoutRow: 1,
+      layoutCol: 0,
+      layoutSpan: 1,
+    },
+    {
+      id: "field-4",
+      name: "West Lowland",
+      area: 2.5,
+      layoutRow: 1,
+      layoutCol: 1,
+      layoutSpan: 1,
+    },
+  ];
+
+  memoryStore.fields.push(
+    ...fieldDefs.map((f) => ({
+      id: f.id,
+      userId: "user-1",
+      farmId: farm.id,
+      name: f.name,
+      area: f.area,
+      areaUnit: "hectares" as const,
+      layoutRow: f.layoutRow,
+      layoutCol: f.layoutCol,
+      layoutSpan: f.layoutSpan,
+      notes: undefined,
+      geo: {
+        referencePoint: null,
+        boundaryGeoJson: null,
+        imageryReady: false,
+        coordinateSystem: null,
+        source: null,
+      },
+      createdAt: "2026-01-12T08:00:00.000Z",
+      updatedAt: now,
+    })),
+  );
+
+  const cropSeeds = [
+    {
+      id: "crop-1",
+      fieldId: "field-1",
+      name: "Wheat",
+      variety: "Galaxy-13",
+      area: 3.2,
+      plantingDate: "2025-11-12",
+      expectedHarvestDate: "2026-04-05",
+      growthStage: "grain_filling" as const,
+      expectedYield: 9800,
+      actualYield: 9200,
+      season: "rabi",
+      year: 2026,
+      healthStatus: "healthy" as const,
+      healthScore: 91,
+    },
+    {
+      id: "crop-2",
+      fieldId: "field-2",
+      name: "Cotton",
+      variety: "FH-142",
+      area: 4.0,
+      plantingDate: "2026-04-28",
+      expectedHarvestDate: "2026-10-20",
+      growthStage: "flowering" as const,
+      expectedYield: 6400,
+      actualYield: null,
+      season: "kharif",
+      year: 2026,
+      healthStatus: "watch" as const,
+      healthScore: 74,
+    },
+    {
+      id: "crop-3",
+      fieldId: "field-3",
+      name: "Corn",
+      variety: "Pioneer 30Y87",
+      area: 2.8,
+      plantingDate: "2026-07-10",
+      expectedHarvestDate: "2026-10-25",
+      growthStage: "vegetative" as const,
+      expectedYield: 7200,
+      actualYield: null,
+      season: "kharif",
+      year: 2026,
+      healthStatus: "at_risk" as const,
+      healthScore: 61,
+    },
+    {
+      id: "crop-4",
+      fieldId: "field-4",
+      name: "Potato",
+      variety: "Asterix",
+      area: 2.5,
+      plantingDate: "2026-08-02",
+      expectedHarvestDate: "2026-11-15",
+      growthStage: "vegetative" as const,
+      expectedYield: 4500,
+      actualYield: null,
+      season: "kharif",
+      year: 2026,
+      healthStatus: "healthy" as const,
+      healthScore: 88,
+    },
+  ];
+
+  memoryStore.crops.push(
+    ...cropSeeds.map((c) => ({
+      id: c.id,
+      userId: "user-1",
+      farmId: farm.id,
+      fieldId: c.fieldId,
+      name: c.name,
+      variety: c.variety,
+      area: c.area,
+      areaUnit: "hectares" as const,
+      plantingDate: c.plantingDate,
+      expectedHarvestDate: c.expectedHarvestDate,
+      growthStage: c.growthStage,
+      expectedYield: c.expectedYield,
+      actualYield: c.actualYield,
+      yieldUnit: "kg" as const,
+      season: c.season,
+      year: c.year,
+      healthStatus: c.healthStatus,
+      healthScore: c.healthScore,
+      createdAt: "2026-01-12T08:00:00.000Z",
+      updatedAt: now,
+    })),
+  );
+
+  // Historical yield observations for analytics charts (no invented GPS)
+  const yieldHistory = [
+    {
+      cropId: "crop-1",
+      fieldId: "field-1",
+      cropName: "Wheat",
+      fieldName: "North Block A",
+      season: "rabi",
+      year: 2024,
+      periodLabel: "Rabi 2024",
+      periodDate: "2024-04-10",
+      expectedYield: 9000,
+      actualYield: 8700,
+      area: 3.2,
+    },
+    {
+      cropId: "crop-1",
+      fieldId: "field-1",
+      cropName: "Wheat",
+      fieldName: "North Block A",
+      season: "rabi",
+      year: 2025,
+      periodLabel: "Rabi 2025",
+      periodDate: "2025-04-08",
+      expectedYield: 9400,
+      actualYield: 9100,
+      area: 3.2,
+    },
+    {
+      cropId: "crop-1",
+      fieldId: "field-1",
+      cropName: "Wheat",
+      fieldName: "North Block A",
+      season: "rabi",
+      year: 2026,
+      periodLabel: "Rabi 2026",
+      periodDate: "2026-04-05",
+      expectedYield: 9800,
+      actualYield: 9200,
+      area: 3.2,
+    },
+    {
+      cropId: "crop-2",
+      fieldId: "field-2",
+      cropName: "Cotton",
+      fieldName: "East Canal Strip",
+      season: "kharif",
+      year: 2024,
+      periodLabel: "Kharif 2024",
+      periodDate: "2024-10-18",
+      expectedYield: 6000,
+      actualYield: 5800,
+      area: 4.0,
+    },
+    {
+      cropId: "crop-2",
+      fieldId: "field-2",
+      cropName: "Cotton",
+      fieldName: "East Canal Strip",
+      season: "kharif",
+      year: 2025,
+      periodLabel: "Kharif 2025",
+      periodDate: "2025-10-22",
+      expectedYield: 6200,
+      actualYield: 6050,
+      area: 4.0,
+    },
+    {
+      cropId: "crop-3",
+      fieldId: "field-3",
+      cropName: "Corn",
+      fieldName: "South Ridge",
+      season: "kharif",
+      year: 2025,
+      periodLabel: "Kharif 2025",
+      periodDate: "2025-10-15",
+      expectedYield: 7000,
+      actualYield: 6650,
+      area: 2.8,
+    },
+    {
+      cropId: "crop-4",
+      fieldId: "field-4",
+      cropName: "Potato",
+      fieldName: "West Lowland",
+      season: "rabi",
+      year: 2025,
+      periodLabel: "Rabi 2025",
+      periodDate: "2025-03-20",
+      expectedYield: 4200,
+      actualYield: 4450,
+      area: 2.5,
+    },
+  ];
+
+  memoryStore.yields.push(
+    ...yieldHistory.map((y) => ({
+      id: randomUUID(),
+      userId: "user-1",
+      farmId: farm.id,
+      cropId: y.cropId,
+      fieldId: y.fieldId,
+      cropName: y.cropName,
+      fieldName: y.fieldName,
+      season: y.season,
+      year: y.year,
+      periodLabel: y.periodLabel,
+      periodDate: y.periodDate,
+      expectedYield: y.expectedYield,
+      actualYield: y.actualYield,
+      yieldUnit: "kg" as const,
+      area: y.area,
+      areaUnit: "hectares" as const,
+      createdAt: now,
+      updatedAt: now,
+    })),
+  );
+
+  memoryStore.seeded = true;
+}

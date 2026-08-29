@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand: #1a4d2e;
+  --color-brand-hover: #143d24;
+  --color-brand-soft: #e8f0ea;
+  --color-brand-muted: #5f8a6a;
+
+  --color-amber: #b86e14;
+  --color-amber-soft: #f8efdf;
+
+  --color-canvas: #f4f3ef;
+  --color-surface: #ffffff;
+  --color-surface-muted: #ebe9e3;
+
+  --color-ink: #1f2420;
+  --color-ink-secondary: #4a524c;
+  --color-ink-muted: #6b746e;
+
+  --color-border: #ddd9d0;
+  --color-border-strong: #c4bfb4;
+  --color-danger: #b42318;
+  --color-danger-soft: #f8e8e6;
+  --color-success: #1a4d2e;
+
+  --sidebar-width: 15.25rem;
+  --header-height: 3.75rem;
+  --bottom-nav-height: 4rem;
+  --content-max: 72rem;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --shadow-card: 0 1px 2px rgba(31, 36, 32, 0.05);
+
+  --font-sans: "DM Sans", system-ui, sans-serif;
+
+  --scrollbar-size: 5px;
+  --scrollbar-thumb: rgba(31, 36, 32, 0.28);
+  --scrollbar-thumb-hover: rgba(26, 77, 46, 0.55);
+  --scrollbar-track: transparent;
+
+  /* Matches admin layout page overlay — used on nav chrome */
+  --admin-chrome-gradient: linear-gradient(
+    160deg,
+    #0c2415 0%,
+    #143d24 42%,
+    #102f1c 100%
+  );
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Global scrollbars, thin thumb, transparent track, tiny arrows */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: none;
+  min-height: 2rem;
+  min-width: 2rem;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-button {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 5px 5px;
+}
+
+*::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' fill='none' stroke='%236b746e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.5 5.5 4 3 6.5 5.5'/%3E%3C/svg%3E");
+}
+
+*::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' fill='none' stroke='%236b746e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.5 2.5 4 5 6.5 2.5'/%3E%3C/svg%3E");
+}
+
+*::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' fill='none' stroke='%236b746e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 1.5 3 4 5.5 6.5'/%3E%3C/svg%3E");
+}
+
+*::-webkit-scrollbar-button:single-button:horizontal:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' fill='none' stroke='%236b746e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 1.5 5 4 2.5 6.5'/%3E%3C/svg%3E");
+}
+
+*::-webkit-scrollbar-button:hover {
+  background-color: rgba(31, 36, 32, 0.06);
+}
+
+@layer components {
+  .type-page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 768px) {
+    .type-page-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  .type-section {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  .type-card-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .type-body {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-ink-secondary);
+  }
+
+  .type-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .type-metric {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .type-helper {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .surface-card {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .surface-shell {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .radius-inner {
+    border-radius: var(--radius-sm);
+  }
+
+  .surface-panel {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .surface-muted {
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+  }
+
+  /* Panels and cards keep their natural height in multi-column grids */
+  .grid {
+    align-items: start;
+  }
+
+  .overlay-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    width: 100vw;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .header-icon-btn {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .header-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}

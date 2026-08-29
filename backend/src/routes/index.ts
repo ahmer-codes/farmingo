@@ -1,0 +1,30 @@
+import { Router } from "express";
+import { authRoutes } from "./auth.routes";
+import { cropRoutes } from "./crop.routes";
+import { diseaseRoutes } from "./disease.routes";
+import { farmRoutes } from "./farm.routes";
+import { fieldRoutes } from "./field.routes";
+import { healthRoutes } from "./health.routes";
+import { notificationRoutes } from "./notification.routes";
+import { adminRoutes } from "./admin.routes";
+import { supportRoutes } from "./support.routes";
+import { taskRoutes } from "./task.routes";
+import { uploadRoutes } from "./upload.routes";
+import { weatherRoutes } from "./weather.routes";
+import { yieldRoutes } from "./yield.routes";
+
+export const apiRouter = Router();
+
+apiRouter.use("/health", healthRoutes);
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/uploads", uploadRoutes);
+apiRouter.use("/farm", farmRoutes);
+apiRouter.use("/fields", fieldRoutes);
+apiRouter.use("/crops", cropRoutes);
+apiRouter.use("/yields", yieldRoutes);
+apiRouter.use("/disease", diseaseRoutes);
+apiRouter.use("/tasks", taskRoutes);
+apiRouter.use("/weather", weatherRoutes);
+apiRouter.use("/notifications", notificationRoutes);
+apiRouter.use("/support", supportRoutes);
+apiRouter.use("/admin", adminRoutes);
